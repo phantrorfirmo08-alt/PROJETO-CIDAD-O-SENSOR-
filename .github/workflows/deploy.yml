@@ -1,4 +1,4 @@
-Oiname: Deploy Flutter Web
+name: Deploy Flutter Web
 
 on:
   push:
@@ -30,6 +30,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+
 
 
           
