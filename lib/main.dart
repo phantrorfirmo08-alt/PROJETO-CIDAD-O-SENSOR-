@@ -35,7 +35,6 @@ class _MonitorHomePageState extends State<MonitorHomePage> {
   bool isLoading = true;
   String errorMessage = '';
 
-  // Substitua pelo link raw correto do seu repositório do GitHub
   final String jsonUrl = 'https://raw.githubusercontent.com/phantrorfirmo08/PROJETO-CIDAD-O-SENSOR-/main/status_monitoramento.json';
 
   @override
