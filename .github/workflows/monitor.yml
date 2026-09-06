@@ -1,5 +1,4 @@
-import os
-import sys
+
 import json
 import logging
 import requests
@@ -10,55 +9,11 @@ from urllib3.util.retry import Retry
 # Configuração de logging estruturado
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("monitor_execucao.log", encoding="utf-8")
-    ]
-)
-logger = logging.getLogger("CidadaoSensorMesquitaAvancado")
-
-class MonitorMicroRegiaoSarapui:
-    def __init__(self):
-        self.session = self._criar_sessao_resiliente()
-        self.timestamp = datetime.now().isoformat()
-        
-        # Alvos hiperlocais focados em Mesquita com a Comunidade do Cebinho e Rua Amazonas
-        self.alvos_comunitarios = [
-            {
-                "localidade": "Comunidade do Cebinho",
-                "bairro": "Rocha Sobrinho",
-                "referencia": "Área de grande densidade popular e vulnerabilidade a inundação"
-            },
-            {
-                "localidade": "Rua Amazonas",
-                "bairro": "Rocha Sobrinho",
-                "referencia": "Trecho crítico de escoamento e transbordo"
-            }
-        ]
-        
-        self.bacia_foco = "Rio Sarapuí"
-        self.cidade = "Mesquita - RJ"
-        
-        self.relatorio = {
-            "timestamp": self.timestamp,
-            "cidade": self.cidade,
-            "bacia": self.bacia_foco,
-            "alvos_monitorados": self.alvos_comunitarios,
-            "status_geral": "NO de reflectância doppler processado com sucesso.")
-                self.relatorio["fontes"]["radar"] = {"status": "OPERACIONAL", "regiao": "Baixada Fluminense"}
-            else: ui, f, indent=4, ensure_ascii=False)
-        logger.info(f"Snapshot tático consolidado em {caminho}")
-
-    def executar_pipeline(self):
-        logger.info("=== INICIANDO PIPELINE DE DEFESA CIVIL: COMUNIDADE DO CEBINHO & SARAPUÍ ===")
-        self.consultar_goes_19()
-        self.consultar_radar_meteorologico()
-        self.consultar_ana_sinia()
+    format='%(asctime)s [%(        self.consultar_ana_sinia()
         self.avaliar_matriz_risco_comunitario()
         self.salvar_snapshot()
         logger.info("=== PIPELINE EXECUTADO COM ÊXITO ===")
 
 if __name__ == "__main__":
     monitor = MonitorMicroRegiaoSarapui()
-    monitor.executar_pipeline()
+   
