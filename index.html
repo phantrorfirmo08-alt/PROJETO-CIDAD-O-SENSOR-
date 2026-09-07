@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCCS - Cidadão Sensor</title>
+    
+    <!-- Meta tags para PWA e Dispositivos Móveis -->
+    <meta name="theme-color" content="#16a34a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cidadão Sensor">
+
+    <!-- Ícone Favicon e Apple Touch Icon (Embutido via SVG Data URI) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2316a34a' d='M256 32C150.13 32 64 118.13 64 224c0 111.41 83.1 228.31 175.76 251.27a32 32 0 0 0 16.48 0C364.9 452.31 448 335.41 448 224 448 118.13 361.87 32 256 32z'/%3E%3Ccircle cx='256' cy='224' r='80' fill='none' stroke='%23fff' stroke-width='24'/%3E%3Cpath fill='none' stroke='%23fff' stroke-width='24' d='M256 128v48M256 272v48M160 224h48M304 224h48'/%3E%3Ctext x='256' y='380' font-family='Arial, sans-serif' font-weight='bold' font-size='56' fill='%23fff' text-anchor='middle'%3EDCCS%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2316a34a' d='M256 32C150.13 32 64 118.13 64 224c0 111.41 83.1 228.31 175.76 251.27a32 32 0 0 0 16.48 0C364.9 452.31 448 335.41 448 224 448 118.13 361.87 32 256 32z'/%3E%3Ccircle cx='256' cy='224' r='80' fill='none' stroke='%23fff' stroke-width='24'/%3E%3Cpath fill='none' stroke='%23fff' stroke-width='24' d='M256 128v48M256 272v48M160 224h48M304 224h48'/%3E%3Ctext x='256' y='380' font-family='Arial, sans-serif' font-weight='bold' font-size='56' fill='%23fff' text-anchor='middle'%3EDCCS%3C/text%3E%3C/svg%3E">
+
+    <!-- Web App Manifest Embutido via Data URI -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22DCCS%20-%20Cidad%C3%A3o%20Sensor%22%2C%22short_name%22%3A%22Cidad%C3%A3o%20Sensor%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%2316a34a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMTZhMzRhIiBkPSJNMjU2IDMyQzE1MC4xMyAzMiA2NCAxMTguMTMgNjQgMjI0YzAgMTExLjQxIDgzLjEgMjI4LjMxIDE3NS43NiAyNTEuMjdhMzIgMzIgMCAwIDAgMTYuNDggMEMzNjQuOSA0NTIuMzEgNDQ4IDMzNS40MSA0NDggMjI0IDQ0OCAxMTguMTMgMzYxLjg3IDMyIDI1NiAzMnoiLz48Y2lyY2wif xD0iMjU2IiBjeT0iMjI0IiByPSI4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjI0Ii8+PHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjI0IiBkPSJNMjU2IDEyOHY0OE0yNTYgMjcydjQ4TTE2MCAyMjRoNDhNMzA0IDIyNGg0OCIvPjx0ZXh0IHg9IjI1NiIgeT0iMzgwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjU2IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EQ0NTPC90ZXh0Pjwvc3ZnPg%3D%3D%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg+xml%22%7D%5D%7D'>
+
+    <!-- Estilos Visuais Modernos e Responsivos -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-box {
+            width: 70px;
+            height: 70px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px auto;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+        }
+        .logo-box svg {
+            width: 40px;
+            height: 40px;
+            fill: #fff;
+        }
+        h1 {
+            font-size: 1.4rem;
+            color: #f8fafc;
+            margin-bottom: 2px;
+        }
+        p.subtitle {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .card {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            border: 1px solid #334155;
+        }
+        .card h2 {
+            font-size: 0.95rem;
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+        .btn:hover {
+            background: #15803d;
+        }
+        .btn-secondary {
+            background: #334155;
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+        label {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .ai-output {
+            background: #090d16;
+            border-left: 4px solid #38bdf8;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            display: none;
+        }
+        footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <!-- Ícone Vetorial Central -->
+                <svg viewBox="0 0 512 512">
+                    <path d="M256 32C150.13 32 64 118.13 64 224c0 111.41 83.1 228.31 175.76 251.27a32 32 0 0 0 16.48 0C364.9 452.31 448 335.41 448 224 448 118.13 361.87 32 256 32z"/>
+                    <circle cx="256" cy="224" r="80" fill="none" stroke="#fff" stroke-width="24"/>
+                    <path fill="none" stroke="#fff" stroke-width="24" d="M256 128v48M256 272v48M160 224h48M304 224h48"/>
+                </svg>
+            </div>
+            <h1>DCCS</h1>
+            <p class="subtitle">Cidadão Sensor - Inteligência Integrada</p>
+        </header>
+
+        <!-- Seção de Registro com IA (Sem campos de chave visíveis) -->
+        <div class="card">
+            <h2>⚠️ Registrar Ocorrência com Análise de IA</h2>
+            <form id="reportForm" onsubmit="enviarComIA(event)">
+                <label for="local">Local / Endereço:</label>
+                <input type="text" id="local" placeholder="Ex: Rua principal, altura do número 100" required>
+                
+                <label for="descricao">Descrição do Risco:</label>
+                <textarea id="descricao" rows="3" placeholder="Descreva o problema (ex: acúmulo de água, movimentação de encosta...)" required></textarea>
+                
+                <button type="submit" class="btn" id="btnEnviar">Analisar e Enviar com IA</button>
+            </form>
+            
+            <!-- Resposta da IA -->
+            <div id="aiResponse" class="ai-output"></div>
+        </div>
+
+        <div class="card">
+            <h2>📞 Contatos Úteis</h2>
+            <a href="tel:199" class="btn btn-secondary" style="margin-top: 0;">Ligar para Defesa Civil (199)</a>
+        </div>
+    </div>
+
+    <footer>
+        DCCS Cidadão Sensor &copy; 2026 - PWA Ativo
+    </footer>
+
+    <!-- Lógica de Integração Automática com a API Gemini -->
+    <script>
+        // CHAVE DA API INTEGRADA DO COFRE SECRETO
+        // Se você usar automação (GitHub Actions), ela pode substituir esta linha automaticamente.
+        const GEMINI_API_KEY = "SUA_CHAVE_SECRETA_AQUI"; 
+
+        async function enviarComIA(e) {
+            e.preventDefault();
+            const local = document.getElementById('local').value;
+            const descricao = document.getElementById('descricao').value;
+            const responseBox = document.getElementById('aiResponse');
+            const btnEnviar = document.getElementById('btnEnviar');
+
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "SUA_CHAVE_SECRETA_AQUI") {
+                alert('Erro de configuração: A chave da API não foi definida no código.');
+                return;
+            }
+
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Analisando com Gemini...';
+            responseBox.style.display = 'block';
+            responseBox.textContent = 'Conectando com o Google AI Studio para avaliar o risco...';
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                
+                const prompt = `Atue como um especialista em Defesa Civil comunitária e análise de riscos urbanos. Um cidadão registrou o seguinte alerta:\n- Local: ${local}\n- Descrição: ${descricao}\n\nPor favor, forneça:\n1. Uma breve avaliação do nível provável de risco (Baixo, Médio ou Alto).\n2. Duas recomendações imediatas de segurança para os moradores.\n3. Uma sugestão curta de texto técnico formal para envio ao órgão municipal competente.`;
+
+                const respostaAPI = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                    })
+                });
+
+                const dados = await respostaAPI.json();
+
+                if (dados.candidates && dados.candidates[0].content.parts[0].text) {
+                    const textoIA = dados.candidates[0].content.parts[0].text;
+                    responseBox.innerHTML = `<strong>🤖 Análise do DCCS / Gemini IA:</strong><br><br>${textoIA.replace(/\n/g, '<br>')}`;
+                } else {
+                    throw new Error('Retorno inesperado da API.');
+                }
+
+            } catch (erro) {
+                responseBox.textContent = 'Erro ao processar com a IA. Detalhe: ' + erro.message;
+            } finally {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Analisar e Enviar com IA';
+            }
+        }
+
+        // Registro de Service Worker para o PWA funcionar perfeitamente offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
+                    self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
