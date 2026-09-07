@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cidadão Sensor - Sarah (Defesa Civil & ONU-Habitat)</title>
+    
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/564/564619.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .text-sm-custom { font-size: 0.9rem; }
+        .text-lg-custom { font-size: 1.15rem; }
+    </style>
+</head>
+<body id="appBody" class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col h-[100dvh] transition-colors duration-200 text-sm-custom">
+
+    <!-- Banner de Alerta de Emergência -->
+    <div id="emergencyBanner" class="bg-red-600 text-white px-4 py-3 text-xs sm:text-sm font-bold flex items-center justify-between hidden shadow-lg shrink-0 animate-pulse z-50">
+        <div class="flex items-center space-x-3 truncate">
+            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            <span>ALERTA MÁXIMO (SARAH / ONU-HABITAT): Risco na Comunidade do Sebinho (Rua Amazonas / Rio Sarapuí e Rio Dona Eugênia).</span>
+        </div>
+        <button onclick="fecharAlerta()" class="text-white hover:text-gray-200 ml-2 shrink-0 p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between shadow-xs shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shadow-sm">
+                <i class="fa-solid fa-globe-americas"></i>
+            </div>
+            <div>
+                <h1 class="font-semibold text-base leading-tight">Sarah - Cidadão Sensor</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Mesquita • ONU-Habitat Resiliente</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-1">
+            <button onclick="mudarTamanhoFonte('sm')" class="px-2 py-1 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Fonte Normal">A-</button>
+            <button onclick="mudarTamanhoFonte('lg')" class="px-2 py-1 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Fonte Maior">A+</button>
+            
+            <div class="h-4 w-[1px] bg-gray-300 dark:bg-gray-700 mx-1"></div>
+
+            <button onclick="toggleModal('modalConfigAPI', true)" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full transition" title="Configurar Chave API">
+                <i class="fa-solid fa-key text-base"></i>
+            </button>
+            <button onclick="toggleTheme()" class="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition" title="Alternar Modo Noite/Dia">
+                <i id="themeIcon" class="fa-solid fa-moon text-base"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Área de Chat -->
+    <main id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 max-w-2xl w-full mx-auto">
+        <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm shrink-0">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3.5 rounded-2xl rounded-tl-xs shadow-xs leading-relaxed max-w-[85%]">
+                <p>Olá! Sou a <strong>Sarah</strong>, sua Analista de Defesa Civil alinhada ao programa <strong>Cidades Resilientes da ONU-Habitat</strong>. Monitoro o <strong>Rio Sarapuí</strong> e o <strong>Rio Dona Eugênia</strong> na Comunidade do Sebinho (Rua Amazonas). Toque na chave 🔑 acima para inserir sua chave e começar. Como posso ajudar?</p>
+                <div class="mt-2 flex items-center justify-end space-x-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+                    <button onclick="lerTextoVoz(this, 'Olá! Sou a Sarah, sua Analista de Defesa Civil pelo programa Cidades Resilientes da ONU-Habitat. Monitoro o Rio Sarapuí e o Rio Dona Eugênia na Comunidade do Sebinho, Rua Amazonas.')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1">
+                        <i class="fa-solid fa-volume-high"></i> <span>Ouvir Sarah</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Barra de Input -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 shrink-0">
+        <form id="chatForm" onsubmit="enviarMensagem(event)" class="max-w-2xl mx-auto flex items-center space-x-2">
+            <button type="button" id="micBtn" onclick="ativarMicrofone()" class="p-3 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition rounded-full" title="Falar por voz">
+                <i class="fa-solid fa-microphone text-base"></i>
+            </button>
+            <input type="text" id="userInput" placeholder="Digite sua mensagem ou dúvida climática..." 
+                class="flex-1 bg-gray-100 dark:bg-gray-900 border border-transparent dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-500 rounded-full px-4 py-3 outline-none transition">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-sm transition shrink-0" title="Enviar">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </form>
+    </footer>
+
+    <!-- Modal Configuração API -->
+    <div id="modalConfigAPI" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-blue-600"></i>
+                    <span>Chave do Google AI Studio</span>
+                </h3>
+                <button onclick="toggleModal('modalConfigAPI', false)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                Insira sua chave de API do Google AI Studio. Ela fica salva com segurança apenas no armazenamento local do seu dispositivo.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">CHAVE DA API:</label>
+                <input type="password" id="inputApiKey" placeholder="Cole sua chave aqui (ex: AIzaSy...)" 
+                    class="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 dark:text-white">
+            </div>
+            <button onclick="salvarApiKey()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition shadow-sm">
+                Salvar Chave & Ativar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function obterApiKey() {
+            return localStorage.getItem('gemini_api_key') || '';
+        }
+
+        const modelName = "gemini-1.5-flash";
+        let historicoChat = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const chaveAtual = obterApiKey();
+            if (chaveAtual) {
+                document.getElementById('inputApiKey').value = chaveAtual;
+            } else {
+                setTimeout(() => toggleModal('modalConfigAPI', true), 500);
+            }
+
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun text-base text-yellow-400';
+            }
+
+            const savedFont = localStorage.getItem('fontSize') || 'sm';
+            mudarTamanhoFonte(savedFont, false);
+        });
+
+        function salvarApiKey() {
+            const novaChave = document.getElementById('inputApiKey').value.trim();
+            if (!novaChave) {
+                alert("Por favor, insira uma chave de API válida.");
+                return;
+            }
+            localStorage.setItem('gemini_api_key', novaChave);
+            toggleModal('modalConfigAPI', false);
+            alert("Chave salva com sucesso!");
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('light')) {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-base text-yellow-400';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-moon text-base';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function mudarTamanhoFonte(tamanho, salvar = true) {
+            const body = document.getElementById('appBody');
+            body.classList.remove('text-sm-custom', 'text-lg-custom');
+            if (tamanho === 'lg') {
+                body.classList.add('text-lg-custom');
+            } else {
+                body.classList.add('text-sm-custom');
+            }
+            if (salvar) {
+                localStorage.setItem('fontSize', tamanho);
+            }
+        }
+
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function fecharAlerta() {
+            document.getElementById('emergencyBanner').classList.add('hidden');
+        }
+
+        function lerTextoVoz(botao, texto) {
+            if (!('speechSynthesis' in window)) {
+                alert("Seu navegador não suporta leitura de voz.");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 1.0;
+            
+            const voices = window.speechSynthesis.getVoices();
+            const ptVoice = voices.find(v => v.lang === 'pt-BR' || v.lang.includes('pt'));
+            if (ptVoice) utterance.voice = ptVoice;
+
+            utterance.onstart = () => botao.classList.add('text-red-500', 'animate-pulse');
+            utterance.onend = () => botao.classList.remove('text-red-500', 'animate-pulse');
+            utterance.onerror = () => botao.classList.remove('text-red-500', 'animate-pulse');
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function ativarMicrofone() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Reconhecimento de voz não suportado neste navegador.");
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+
+            const micBtn = document.getElementById('micBtn');
+            micBtn.classList.add('text-red-500', 'animate-pulse');
+
+            recognition.onresult = function(event) {
+                document.getElementById('userInput').value = event.results[0][0].transcript;
+                micBtn.classList.remove('text-red-500', 'animate-pulse');
+            };
+            recognition.onerror = () => micBtn.classList.remove('text-red-500', 'animate-pulse');
+            recognition.onend = () => micBtn.classList.remove('text-red-500', 'animate-pulse');
+            recognition.start();
+        }
+
+        async function enviarMensagem(event) {
+            event.preventDefault();
+            
+            const apiKeyAtiva = obterApiKey();
+            if (!apiKeyAtiva) {
+                alert("Por favor, configure sua chave de API tocando no ícone de chave no topo.");
+                toggleModal('modalConfigAPI', true);
+                return;
+            }
+
+            const inputField = document.getElementById('userInput');
+            const mensagemTexto = inputField.value.trim();
+            if (!mensagemTexto) return;
+
+            inputField.value = '';
+            adicionarMensagemNaTela(mensagemTexto, 'user');
+            
+            const loadingId = mostrarIndicadorCarregamento();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKeyAtiva}`;
+
+            const systemInstruction = {
+                parts: [{
+                    text: `Você é a **Sarah**, Analista de Monitoramento Climático e Alerta Hidrológico em Mesquita, RJ, integrada às diretrizes do programa **Cidades Resilientes da ONU-Habitat**. 
+                    Foque estritamente no monitoramento das bacias do **Rio Sarapuí** e do **Rio Dona Eugênia**, atuando na proteção e resiliência urbana da **Comunidade do Sebinho (Rua Amazonas)**. 
+                    Ajude os moradores integrando conceitos de mitigação de riscos, adaptação climática urbana, preparação comunitária e diretrizes da ONU-Habitat sempre que pertinente. 
+                    Se houver risco de inundação ou temporal grave, inicie sua resposta com [ALERTA_EMERGENCIA]. Seja direta, acolhedora e prestativa.`
+                }]
+            };
+
+            const contents = [
+                ...historicoChat,
+                { role: "user", parts: [{ text: mensagemTexto }] }
+            ];
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        system_instruction: systemInstruction,
+                        contents: contents
+                    })
+                });
+
+                const data = await response.json();
+                removerIndicadorCarregamento(loadingId);
+
+                if (data.candidates && data.candidates[0].content) {
+                    let respostaIA = data.candidates[0].content.parts[0].text;
+
+                    if (respostaIA.includes('[ALERTA_EMERGENCIA]')) {
+                        respostaIA = respostaIA.replace('[ALERTA_EMERGENCIA]', '').trim();
+                        document.getElementById('emergencyBanner').classList.remove('hidden');
+                    }
+
+                    adicionarMensagemNaTela(respostaIA, 'model');
+
+                    historicoChat.push({ role: "user", parts: [{ text: mensagemTexto }] });
+                    historicoChat.push({ role: "model", parts: [{ text: respostaIA }] });
+                } else if (data.error) {
+                    adicionarMensagemNaTela("Erro da API: " + data.error.message, 'model');
+                } else {
+                    adicionarMensagemNaTela("Erro ao processar resposta. Verifique sua chave de API.", 'model');
+                }
+            } catch (error) {
+                removerIndicadorCarregamento(loadingId);
+                adicionarMensagemNaTela("Erro de conexão com o sistema.", 'model');
+            }
+        }
+
+        function adicionarMensagemNaTela(texto, remetente) {
+            const container = document.getElementById('chatContainer');
+            const isUser = remetente === 'user';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex items-start space-x-3 ${isUser ? 'justify-end' : ''}`;
+
+            if (!isUser) {
+                const avatar = document.createElement('div');
+                avatar.className = 'w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm shrink-0';
+                avatar.innerHTML = '<i class="fa-solid fa-robot"></i>';
+                wrapper.appendChild(avatar);
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = isUser 
+                ? 'bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-xs shadow-xs leading-relaxed max-w-[85%]'
+                : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3.5 rounded-2xl rounded-tl-xs shadow-xs leading-relaxed max-w-[85%]';
+            
+            const textoFormatado = texto.replace(/\n/g, '<br>');
+            
+            if (!isUser) {
+                const encodedText = encodeURIComponent(texto);
+                bubble.innerHTML = `
+                    <p>${textoFormatado}</p>
+                    <div class="mt-2 flex items-center justify-end space-x-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+                        <button onclick="lerTextoVozDecodificado(this, '${encodedText}')" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1">
+                            <i class="fa-solid fa-volume-high"></i> <span>Ouvir Sarah</span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                bubble.innerHTML = `<p>${textoFormatado}</p>`;
+            }
+
+            wrapper.appendChild(bubble);
+
+            if (isUser) {
+                const avatar = document.createElement('div');
+                avatar.className = 'w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-sm shrink-0';
+                avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+                wrapper.appendChild(avatar);
+            }
+
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function lerTextoVozDecodificado(botao, encodedText) {
+            const texto = decodeURIComponent(encodedText);
+            lerTextoVoz(botao, texto);
+        }
+
+        let contadorLoading = 0;
+        function mostrarIndicadorCarregamento() {
+            const id = 'loading-' + (++contadorLoading);
+            const container = document.getElementById('chatContainer');
+            const wrapper = document.createElement('div');
+            wrapper.id = id;
+            wrapper.className = 'flex items-start space-x-3';
+            wrapper.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm shrink-0">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl rounded-tl-xs shadow-xs flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-.2s]"></div>
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-.4s]"></div>
+                </div>
+            `;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removerIndicadorCarregamento(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        }
+    </script>
+</body>
+</html>
