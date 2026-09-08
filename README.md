@@ -29,12 +29,7 @@ O **Projeto Cidadão Sensor** opera como um ecossistema integrado de monitoramen
 * **Core:** HTML5 / ECMAScript 6+ (SPA de arquivo único).
 * **Estilização:** Tailwind CSS (via CDN com temas personalizados).
 * **Tipografia:** Google Fonts (`Plus Jakarta Sans`).
-* **Design Vetorial:** Gráficos SVG nativos com animações CSS.
-
-## 📦 Como Executar o Projeto
-1. Salve o código-fonte como `index.html`.
-2. Mantenha conexão com a internet para carregar Tailwind e fontes.
-3. Abra o `index.html` em qualquer navegador moderno.
+* **Design Vetorial:** Gráficos SVG nativos com animações CSS
 
 ## 📂 Estrutura do projeto
 ```text
