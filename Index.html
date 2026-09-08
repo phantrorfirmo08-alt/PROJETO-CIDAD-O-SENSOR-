@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarah - Defesa Civil Digital Comunitária</title>
+    
+    <!-- Open Graph / Redes Sociais (WhatsApp, Instagram, etc.) - Cartão de Prévia -->
+    <meta property="og:title" content="Sarah • Defesa Civil Digital Comunitária">
+    <meta property="og:description" content="Monitoramento climático, telemetria em tempo real e assistente inteligente para a Comunidade do Sebinho (Mesquita - RJ).">
+    <meta property="og:image" content="https://img.icons8.com/color/192/bot.png">
+    <meta property="og:url" content="./">
+    <meta property="og:type" content="website">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/bot.png">
+    <link id="pwa-manifest" rel="manifest" href="">
+</head>
+<body id="app-body" class="bg-slate-900 text-slate-100 h-screen flex flex-col justify-between transition-colors duration-200 text-sm" style="font-size: 1rem;">
+
+    <!-- Cabeçalho -->
+    <header class="bg-slate-950 border-b border-slate-800 text-white p-2.5 shadow-md flex justify-between items-center z-10 flex-wrap gap-1">
+        <div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h1 class="font-bold text-sm md:text-base">Sarah IA • Defesa Civil Digital</h1>
+            </div>
+            <p class="text-[10px] md:text-xs text-slate-400">Mesquita • Comunidade do Sebinho | Bacia do Sarapuí</p>
+        </div>
+        <div class="flex items-center space-x-1.5 flex-wrap">
+            <button onclick="abrirTermos()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs px-2 py-1 rounded shadow" title="Termos de Responsabilidade">📜 Termos</button>
+            <button onclick="alternarTema()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-2 py-1 rounded shadow" title="Alternar Tema">🌓 Tema</button>
+            <button onclick="mudarFonte(-1)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-1.5 py-1 rounded shadow" title="Diminuir Letra">A-</button>
+            <button onclick="mudarFonte(1)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-1.5 py-1 rounded shadow" title="Aumentar Letra">A+</button>
+            <button onclick="abrirModalChave()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-2 py-1 rounded shadow" title="Configurar Chave API">🔑 Chave</button>
+            <button id="btn-instalar" onclick="instalarApp()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2 py-1 rounded shadow font-semibold animate-pulse">📲 Instalar</button>
+        </div>
+    </header>
+
+    <!-- Área de Abas (Chat vs Monitoramento / Radar) -->
+    <div class="bg-slate-900 border-b border-slate-800 px-4 py-1.5 flex justify-center space-x-4 text-xs font-semibold">
+        <button onclick="mudarAba('chat')" id="tab-chat-btn" class="text-blue-400 border-b-2 border-blue-500 pb-1 px-3 transition">💬 Chat & Companhia</button>
+        <button onclick="mudarAba('monitoramento')" id="tab-monitor-btn" class="text-slate-400 hover:text-slate-200 pb-1 px-3 transition">📡 Radar & Sensores (24h)</button>
+    </div>
+
+    <!-- Conteúdo Principal: Visão Chat -->
+    <main id="view-chat" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="bg-blue-950/40 border border-blue-900/50 p-2.5 rounded-xl text-xs text-blue-200 flex items-center justify-between">
+            <span>🛡️ <strong>Sarah Ativa:</strong> Conversa aberta (tecnologia, lazer, culinária, apoio emocional) + Monitoramento GOES-19 e Radares.</span>
+            <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">Online</span>
+        </div>
+        
+        <!-- Indicador de Onda Sonora (Visual Simulado) -->
+        <div class="flex items-center justify-center space-x-1 py-1 opacity-70">
+            <span class="w-1 h-3 bg-blue-400 rounded-full animate-pulse"></span>
+            <span class="w-1 h-6 bg-blue-500 rounded-full animate-pulse" style="animation-delay: 0.1s"></span>
+            <span class="w-1 h-4 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></span>
+            <span class="w-1 h-7 bg-blue-600 rounded-full animate-pulse" style="animation-delay: 0.3s"></span>
+            <span class="w-1 h-3 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></span>
+            <span class="text-[10px] text-slate-400 font-mono pl-2">Voz e Escuta Prontas</span>
+        </div>
+
+        <div class="flex items-start space-x-2">
+            <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow leading-relaxed">
+                <p>Olá! Sou a <strong>Sarah</strong>. Estou aqui para bater papo sobre qualquer assunto, contar uma piada, te dar uma palavra amiga ou monitorar o tempo na Comunidade do Sebinho. O que manda hoje?</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Conteúdo Principal: Visão Radar & Telemetria -->
+    <main id="view-monitoramento" class="flex-1 overflow-y-auto p-4 space-y-4 hidden">
+        <!-- Card Satélite GOES-19 & Institutos -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3.5 shadow-md space-y-2">
+            <div class="flex justify-between items-center text-xs text-slate-300 font-semibold">
+                <span class="flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                    <span>[SATÉLITE GOES-19 • RADAR DOPPLER • ANA • CEMADEN • INEA • INMET]</span>
+                </span>
+                <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-blue-300 font-mono">Malha Oficial Conectada</span>
+            </div>
+            <p class="text-xs text-slate-400">Monitoramento integrado de tempestades, rajadas de vento severas, níveis hídricos e cotas de inundação na Bacia do Sarapuí e Dona Eugênia.</p>
+        </div>
+
+        <!-- Card Visual do Radar -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-md">
+            <div class="bg-slate-900 px-3.5 py-2 border-b border-slate-700 flex justify-between items-center text-xs font-bold text-slate-300">
+                <span>[RADAR DOPPLER & PRECIPITAÇÃO]</span>
+                <span class="text-[10px] text-emerald-400">Tempo Real</span>
+            </div>
+            <div class="relative h-36 bg-slate-950 flex items-center justify-center p-4">
+                <div class="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900 via-slate-950 to-slate-950"></div>
+                <div class="absolute bottom-2 left-2 bg-slate-900/90 border border-slate-700 text-xs px-3 py-1.5 rounded-lg backdrop-blur shadow flex items-center space-x-2">
+                    <span class="text-orange-400 font-bold">📍</span>
+                    <div>
+                        <p class="font-bold text-[11px] text-white">MESQUITA-RJ / SEBINHO</p>
+                        <p class="text-[10px] text-slate-400 font-mono">Lat: -22.7831° S, Lon: -43.4292° W</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Legenda -->
+            <div class="p-3 bg-slate-900/80 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
+                <div class="bg-slate-800 p-1.5 rounded border border-slate-700"><span class="inline-block w-2 h-2 rounded-full bg-cyan-400 mr-1"></span> Fraca (&lt;5mm)</div>
+                <div class="bg-slate-800 p-1.5 rounded border border-slate-700"><span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span> Moderada (15mm)</div>
+                <div class="bg-slate-800 p-1.5 rounded border border-slate-700"><span class="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1"></span> Forte (30mm)</div>
+                <div class="bg-slate-800 p-1.5 rounded border border-slate-700"><span class="inline-block w-2 h-2 rounded-full bg-red-600 mr-1"></span> Extrema (&gt;50mm)</div>
+            </div>
+        </div>
+
+        <!-- Telemetria 24H -->
+        <div class="space-y-2">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">Telemetry 24h • Estações Locais</h3>
+            
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex justify-between items-center shadow">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Rocha Sobrinho</p>
+                    <p class="text-base font-bold text-white">Nível 2.17m</p>
+                </div>
+                <span class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-lg">NORMAL</span>
+            </div>
+
+            <div class="bg-slate-800 border border-yellow-700/50 rounded-xl p-3 flex justify-between items-center shadow">
+                <div>
+                    <p class="text-xs text-yellow-400 font-medium">Sebinho (Comunidade)</p>
+                    <p class="text-base font-bold text-white">Nível 2.85m</p>
+                </div>
+                <span class="bg-yellow-950 text-yellow-400 border border-yellow-800 text-[10px] font-bold px-2.5 py-1 rounded-lg animate-pulse">ALERTA AMARELO</span>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 flex justify-between items-center shadow">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">Mesquita (Geral)</p>
+                    <p class="text-base font-bold text-white">Nível 3.60m</p>
+                </div>
+                <span class="bg-blue-950 text-blue-400 border border-blue-800 text-[10px] font-bold px-2.5 py-1 rounded-lg">MONITORANDO</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Rodapé Completo: Barra Fixa de Contatos -->
+    <footer class="bg-slate-950 border-t border-slate-800 shadow-inner flex flex-col">
+        
+        <!-- BARRA FIXA DE CONTATOS (Defesa Civil unificada com todas as linhas oficiais) -->
+        <div class="bg-slate-900/90 border-b border-slate-800 px-3 py-1.5 flex items-center justify-between text-[11px] overflow-x-auto whitespace-nowrap gap-2 scrollbar-none">
+            <span class="text-slate-400 font-bold uppercase text-[10px] tracking-wider shrink-0">🚨 Defesa Civil:</span>
+            <div class="flex items-center space-x-2">
+                <a href="tel:199" class="bg-red-950 hover:bg-red-900 border border-red-800/80 text-red-300 px-2.5 py-1 rounded-md font-bold shadow-sm transition flex items-center space-x-1">
+                    <span>199</span>
+                </a>
+                <a href="tel:2140421772" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 px-2.5 py-1 rounded-md font-mono shadow-sm transition">
+                    <span>(21) 4042-1772</span>
+                </a>
+                <a href="tel:21972993223" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 px-2.5 py-1 rounded-md font-mono shadow-sm transition">
+                    <span>(21) 97299-3223</span>
+                </a>
+                <span class="text-slate-600 font-mono">|</span>
+                <a href="tel:2120428931" class="bg-indigo-950 hover:bg-indigo-900 border border-indigo-700/80 text-indigo-300 px-2.5 py-1 rounded-md font-mono shadow-sm transition flex items-center space-x-1 font-semibold">
+                    <span>🏢 CRAS Rocha Sobrinho: (21) 2042-8931</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Entrada de Texto & Microfone -->
+        <div class="p-2.5 flex items-center space-x-2">
+            <button id="btn-mic" onclick="ouvirVoz()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2.5 rounded-full transition flex items-center justify-center shrink-0" title="Falar por voz">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+            <input type="text" id="user-input" placeholder="Converse com a Sarah (piadas, tempo, culinária, apoio...)" class="flex-1 border border-slate-700 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-900 text-white" onkeypress="if(event.key === 'Enter') enviarMensagem()">
+            <button onclick="enviarMensagem()" class="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition flex items-center justify-center shadow shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Rodapé Institucional -->
+        <div class="bg-slate-950 text-center py-2 px-2 border-t border-slate-900 text-xs text-slate-300 font-medium tracking-wide flex flex-col items-center justify-center space-y-0.5">
+            <span class="font-bold text-amber-400 uppercase tracking-widest text-[10px]">Defesa Civil Digital Comunitária</span>
+            <span class="text-[11px] text-slate-400">Grupo A Chave da Esperança • Mesquita / Sebinho, RJ</span>
+        </div>
+    </footer>
+
+    <!-- Modal Termos de Responsabilidade -->
+    <div id="modal-termos" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 text-white rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-amber-500/50">
+            <h2 class="text-lg font-bold text-amber-400">📜 Termos de Responsabilidade e Uso</h2>
+            <div class="text-xs text-slate-300 space-y-3 max-h-60 overflow-y-auto pr-2">
+                <p>A <strong>Sarah • Defesa Civil Digital Comunitária</strong> é uma ferramenta de apoio tecnológico desenvolvida para auxiliar o grupo comunitário <em>A Chave da Esperança</em> na Comunidade do Sebinho (Mesquita, RJ).</p>
+                <p><strong>1. Natureza da Informação:</strong> Esta aplicação integra dados públicos de institutos de monitoramento (Cemaden, Inea, Inmet, ANA) e inteligência artificial generativa. Ela serve como suporte preventive e canal informativo, <strong>não substituindo</strong> comunicados ou ordens oficiais emitidas diretamente pelos órgãos competentes da Defesa Civil do Estado ou Município.</p>
+                <p><strong>2. Situações de Emergência:</strong> Em caso de risco iminente de desabamentos, alagamentos graves ou perigo à vida, priorize a evacuação segura e acione imediatamente os órgãos oficiais pelos telefones de emergência disponíveis na barra inferior (como o <strong>199</strong>).</p>
+                <p><strong>3. Responsabilidade de Uso:</strong> Os desenvolvedores e líderes comunitários isentam-se de responsabilidade por decisões individuais tomadas unicamente com base em respostas automatizadas da assistente virtual em cenários de eventos climáticos extremos.</p>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="fecharTermos()" class="px-5 py-2 text-xs bg-amber-600 hover:bg-amber-700 text-slate-950 font-bold rounded-lg shadow">Estou Ciente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alerta Amarelo -->
+    <div id="modal-alerta-amarelo" class="fixed inset-0 bg-yellow-950/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border-4 border-yellow-500 text-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <h2 class="text-xl font-black uppercase tracking-wide text-yellow-500">⚠️ ALERTA AMARELO - ATENÇÃO PREVENTIVA</h2>
+            <div id="alerta-amarelo-desc" class="text-sm bg-yellow-950/50 p-4 rounded-xl border border-yellow-700/50 font-medium"></div>
+            <div class="flex justify-end pt-2">
+                <button onclick="fecharAlertaAmarelo()" class="px-5 py-2.5 text-xs bg-yellow-600 hover:bg-yellow-700 text-slate-950 font-bold rounded-lg shadow">Estou Ciente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alerta Vermelho -->
+    <div id="modal-alerta-defesa-civil" class="fixed inset-0 bg-red-950/80 z-50 flex items-center justify-center p-4 hidden animate-pulse">
+        <div class="bg-slate-900 border-4 border-red-600 text-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <h2 class="text-xl font-black uppercase tracking-wide text-red-600">🚨 ALERTA VERMELHO - DEFESA CIVIL</h2>
+            <div id="alerta-descricao" class="text-sm bg-red-950/50 p-4 rounded-xl border border-red-900 font-medium"></div>
+            <div class="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                <button onclick="fecharAlertaEmergencia()" class="px-5 py-2.5 text-xs bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg">Estou Seguro</button>
+                <a href="tel:199" class="px-5 py-2.5 text-xs bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-center shadow">Ligar 199</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal API Key -->
+    <div id="modal-chave" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 text-white rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h2 class="text-lg font-bold">🔑 Chave da API do Google AI Studio</h2>
+            <p class="text-xs text-slate-300">Insira sua chave do Google AI Studio para ativar a inteligência da Sarah.</p>
+            <input type="password" id="input-api-key" placeholder="Cole sua chave aqui (AIza...)" class="w-full border border-slate-700 rounded-lg px-3 py-2 bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none text-white">
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="fecharModalChave()" class="px-4 py-2 text-xs text-slate-300 hover:bg-slate-700 rounded-lg">Cancelar</button>
+                <button onclick="salvarChave()" class="px-4 py-2 text-xs bg-blue-600 text-white font-semibold rounded-lg shadow">Salvar Chave</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const manifestData = {
+            "name": "Sarah - Defesa Civil Digital",
+            "short_name": "Sarah Sebinho",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#0f172a",
+            "theme_color": "#0f172a",
+            "icons": [{"src": "https://img.icons8.com/color/192/bot.png", "sizes": "192x192", "type": "image/png"}]
+        };
+        document.getElementById('pwa-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'}));
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('btn-instalar').classList.remove('hidden');
+        });
+        async function instalarApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') document.getElementById('btn-instalar').classList.add('hidden');
+                deferredPrompt = null;
+            }
+        }
+
+        const modelName = "gemini-3.6-flash";
+        let historicoConversa = [];
+        let tamanhoFonteRem = 1.0;
+
+        function mudarAba(aba) {
+            const viewChat = document.getElementById('view-chat');
+            const viewMonitor = document.getElementById('view-monitoramento');
+            const btnChat = document.getElementById('tab-chat-btn');
+            const btnMonitor = document.getElementById('tab-monitor-btn');
+
+            if (aba === 'chat') {
+                viewChat.classList.remove('hidden');
+                viewMonitor.classList.add('hidden');
+                btnChat.className = "text-blue-400 border-b-2 border-blue-500 pb-1 px-3 transition";
+                btnMonitor.className = "text-slate-400 hover:text-slate-200 pb-1 px-3 transition";
+            } else {
+                viewChat.classList.add('hidden');
+                viewMonitor.classList.remove('hidden');
+                btnMonitor.className = "text-blue-400 border-b-2 border-blue-500 pb-1 px-3 transition";
+                btnChat.className = "text-slate-400 hover:text-slate-200 pb-1 px-3 transition";
+            }
+        }
+
+        function mudarFonte(direcao) {
+            tamanhoFonteRem += direcao * 0.1;
+            if (tamanhoFonteRem < 0.8) tamanhoFonteRem = 0.8;
+            if (tamanhoFonteRem > 1.5) tamanhoFonteRem = 1.5;
+            document.body.style.fontSize = tamanhoFonteRem + 'rem';
+        }
+
+        function alternarTema() {
+            const body = document.body;
+            if (body.classList.contains('bg-slate-900')) {
+                body.classList.remove('bg-slate-900', 'text-slate-100');
+                body.classList.add('bg-slate-100', 'text-slate-800');
+                localStorage.setItem('sarah_tema', 'claro');
+            } else {
+                body.classList.remove('bg-slate-100', 'text-slate-800');
+                body.classList.add('bg-slate-900', 'text-slate-100');
+                localStorage.setItem('sarah_tema', 'escuro');
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem('sarah_tema') === 'claro') {
+                document.body.classList.remove('bg-slate-900', 'text-slate-100');
+                document.body.classList.add('bg-slate-100', 'text-slate-800');
+            }
+            if (!obterChave()) abrirModalChave();
+        });
+
+        function obterChave() { return localStorage.getItem("sarah_gemini_api_key") || ""; }
+        function abrirModalChave() { document.getElementById("input-api-key").value = obterChave(); document.getElementById("modal-chave").classList.remove("hidden"); }
+        function fecharModalChave() { document.getElementById("modal-chave").classList.add("hidden"); }
+        function salvarChave() {
+            const k = document.getElementById("input-api-key").value.trim();
+            if (!k) { alert("Insira uma chave válida."); return; }
+            localStorage.setItem("sarah_gemini_api_key", k);
+            fecharModalChave();
+            alert("Chave salva com sucesso!");
+        }
+
+        function abrirTermos() { document.getElementById("modal-termos").classList.remove("hidden"); }
+        function fecharTermos() { document.getElementById("modal-termos").classList.add("hidden"); }
+
+        function dispararAlertaAmarelo(textoAlerta) {
+            document.getElementById('alerta-amarelo-desc').innerHTML = escapeHtml(textoAlerta);
+            document.getElementById('modal-alerta-amarelo').classList.remove('hidden');
+            falarTexto(textoAlerta);
+        }
+        function fecharAlertaAmarelo() { document.getElementById('modal-alerta-amarelo').classList.add('hidden'); }
+
+        function dispararAlertaEmergencia(textoAlerta) {
+            document.getElementById('alerta-descricao').innerHTML = escapeHtml(textoAlerta);
+            document.getElementById('modal-alerta-defesa-civil').classList.remove('hidden');
+            falarTexto(textoAlerta);
+        }
+        function fecharAlertaEmergencia() {
+            document.getElementById('modal-alerta-defesa-civil').classList.add('hidden');
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+
+        function ouvirVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("Navegador não suporta reconhecimento de voz."); return; }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            const btnMic = document.getElementById('btn-mic');
+            btnMic.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+
+            recognition.onresult = (event) => {
+                document.getElementById('user-input').value = event.results[0][0].transcript;
+                btnMic.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+                enviarMensagem();
+            };
+            recognition.onerror = recognition.onend = () => btnMic.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+            recognition.start();
+        }
+
+        async function enviarMensagem() {
+            const apiKey = obterChave();
+            if (!apiKey) { abrirModalChave(); return; }
+
+            const input = document.getElementById('user-input');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            const chatContainer = document.getElementById('view-chat');
+            chatContainer.innerHTML += `
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow leading-relaxed">
+                        <p>${escapeHtml(texto)}</p>
+                    </div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            input.value = '';
+
+            historicoConversa.push({ role: "user", parts: [{ text: texto }] });
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system_instruction: {
+                            parts: [{ text: "Você é a Sarah, assistente e agente de monitoramento climático da Defesa Civil Digital Comunitária no Sebinho (Mesquita/RJ). Você é uma companheira acolhedora, empática e amigável. Você conversa fluentemente sobre tudo: tecnologia, religião, esporte, lazer, culinária, conta piadas e atua com empatia e escuta amiga para ajudar pessoas estressadas ou sobrecarregadas. NUNCA recite listas longas de números de telefone em voz alta nas respostas; quando necessário citar contatos, mencione apenas o 199 ou oriente a pessoa a olhar a barra fixa de contatos e o CRAS Rocha Sobrinho na tela. Simultaneamente, você está integrada ao satélite GOES-19, Radar Doppler, ANA, Cemaden, Inea, Inmet, Sistema Alerta e Defesa Civil local, monitorando chuvas e ventos fortes. Suas respostas devem ser naturais e humanas. Se houver risco preventivo, inclua a tag [ALERTA_AMARELO: instrução]. Se houver perigo severo iminente, inclua [ALERTA_DEFESA_CIVIL: instrução]." }]
+                        },
+                        contents: historicoConversa
+                    })
+                });
+
+                const data = await response.json();
+                let respostaTexto = "Desculpe, ocorreu um erro ao processar sua solicitação.";
+                
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    respostaTexto = data.candidates[0].content.parts[0].text;
+                    historicoConversa.push({ role: "model", parts: [{ text: respostaTexto }] });
+                }
+
+                if (respostaTexto.includes("[ALERTA_AMARELO:")) {
+                    const partes = respostaTexto.split("[ALERTA_AMARELO:");
+                    const textoLimpo = partes[0].trim();
+                    const textoAlerta = partes[1].replace("]", "").trim();
+
+                    if (textoLimpo) {
+                        chatContainer.innerHTML += `
+                            <div class="flex items-start space-x-2">
+                                <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow leading-relaxed">
+                                    <p>${escapeHtml(textoLimpo)}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    dispararAlertaAmarelo(textoAlerta);
+                    return;
+                }
+
+                if (respostaTexto.includes("[ALERTA_DEFESA_CIVIL:")) {
+                    const partes = respostaTexto.split("[ALERTA_DEFESA_CIVIL:");
+                    const textoLimpo = partes[0].trim();
+                    const textoAlerta = partes[1].replace("]", "").trim();
+
+                    if (textoLimpo) {
+                        chatContainer.innerHTML += `
+                            <div class="flex items-start space-x-2">
+                                <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow leading-relaxed">
+                                    <p>${escapeHtml(textoLimpo)}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    dispararAlertaEmergencia(textoAlerta);
+                    return;
+                }
+
+                chatContainer.innerHTML += `
+                    <div class="flex items-start space-x-2">
+                        <div class="bg-blue-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow leading-relaxed">
+                            <p>${escapeHtml(respostaTexto)}</p>
+                        </div>
+                    </div>
+                `;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                falarTexto(respostaTexto);
+
+            } catch (error) {
+                console.error(error);
+                chatContainer.innerHTML += `
+                    <div class="flex items-start space-x-2">
+                        <div class="bg-red-600 text-white p-3 rounded-2xl max-w-[85%] md:max-w-md shadow">
+                            <p>Erro de conexão com a API.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function falarTexto(texto) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(texto);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
