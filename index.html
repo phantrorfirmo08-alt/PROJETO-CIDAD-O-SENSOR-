@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cidadão Sensor - Sebinho AI</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Monitoramento de Desastres e IA para Comunidade do Sebinho">
+    
+    <!-- ÍCONES E MANIFEST (COM IMAGENS PROFISSIONAIS) -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2921/2921226.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2921/2921226.png">
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNpZGFkw7NvIFNlbnNvciAtIFNlYmluaG8gQUkiLAogICJzaG9ydF9uYW1lIjogIkNpZGFkw7NvIFNlbnNvciIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGYxNzJhIiwKICAidGhlbWVfY29sb3IiOiAiIzBmMTcyYSIsCiAgImljb25zIjogW3sKICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMjkyMS8yOTIxMjI2LnBuZyIsCiAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgfSwKICAgIHsKICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMjkyMS8yOTIxMjI2LnBuZyIsCiAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgfQogIF0KfQ==">
+
+    <style>
+        :root { 
+            --bg: #0f172a; --glass: rgba(30, 41, 59, 0.7); 
+            --accent: #38bdf8; --danger: #ef4444; --warning: #f59e0b;
+            --text: #f1f5f9; --safe: #10b981; 
+        }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%); 
+            color: var(--text); height: 100vh; margin: 0; display: flex; flex-direction: column; overflow: hidden; 
+        }
+        body.light-mode { background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 100%); color: #0f172a; }
+        
+        /* Header */
+        header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 10; }
+        .logo { font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+        .logo span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        .header-actions { display: flex; gap: 10px; }
+        .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .icon-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
+
+        /* Avatar Container - IMAGEM REAL */
+        #avatar-container { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .avatar-img { 
+            width: 280px; height: 280px; border-radius: 50%; 
+            background: url('https://cdn-icons-png.flaticon.com/512/4712/4712035.png') no-repeat center center; 
+            background-size: cover; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.6); 
+            border: 3px solid rgba(255,255,255,0.1);
+            transition: box-shadow 0.5s, border-color 0.5s;
+            position: relative;
+        }
+        /* Efeito de "olhos" sobre a imagem para simular vida */
+        .avatar-eyes {
+            position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 20px; pointer-events: none;
+            display: flex; justify-content: space-between;
+        }
+        .eye { width: 20px; height: 20px; background: var(--accent); border-radius: 50%; opacity: 0.8; box-shadow: 0 0 10px var(--accent); transition: opacity 0.2s; }
+        .eye.right { margin-left: 10px; }
+
+        /* Status Bar */
+        #status-bar { text-align: center; padding: 12px; font-weight: bold; background: rgba(0,0,0,0.4); font-size: 0.9rem; letter-spacing: 0.5px; }
+        .status-safe { color: var(--safe); }
+        .status-warning { color: var(--warning); animation: pulse 1s infinite; }
+        .status-danger { color: var(--danger); animation: pulse 0.5s infinite; text-shadow: 0 0 10px var(--danger); }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Chat Area */
+        #log-area { height: 160px; overflow-y: auto; padding: 15px; font-size: 0.9rem; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 10px; }
+        .log-entry { padding: 10px 15px; border-radius: 12px; max-width: 85%; line-height: 1.4; animation: slideIn 0.3s ease-out; }
+        .log-user { align-self: flex-end; background: rgba(56, 189, 248, 0.2); border: 1px solid var(--accent); color: #e0f2fe; }
+        .log-bot { align-self: flex-start; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
+        .log-system { align-self: center; background: transparent; border: none; font-size: 0.8rem; color: #94a3b8; text-align: center; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Controls */
+        #controls { padding: 15px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); display: flex; flex-direction: column; gap: 10px; padding-bottom: 25px; }
+        
+        /* API Key Input */
+        .api-section { display: flex; gap: 8px; margin-bottom: 5px; }
+        .api-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px dashed var(--accent); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-family: monospace; }
+        .api-save { background: var(--accent); color: #000; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+
+        /* Main Input */
+        .input-wrapper { display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { 
+            flex: 1; padding: 14px 16px; border-radius: 25px; border: 2px solid rgba(255,255,255,0.1); 
+            background: rgba(255,255,255,0.05); color: white; font-size: 1rem; outline: none; transition: 0.3s; 
+        }
+        input[type="text"]:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+
+        .btn-mic { 
+            width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; 
+            background: rgba(255,255,255,0.1); color: white; display: flex; align-items: center; justify-content: center; transition: 0.3s; 
+        }
+        .btn-mic.listening { background: var(--danger); color: white; box-shadow: 0 0 25px var(--danger); animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .btn-send { 
+            width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer; 
+            background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        .btn-send:active { transform: scale(0.9); }
+
+        /* Alert Overlay - IMAGENS REAIS */
+        #alert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; }
+        #alert-overlay.active { display: flex; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .alert-icon-img { 
+            width: 120px; height: 120px; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
+            margin-bottom: 20px;
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .alert-title { font-size: 32px; font-weight: 900; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        .alert-msg { font-size: 18px; line-height: 1.6; margin-bottom: 30px; max-width: 90%; color: #fff; }
+        .btn-close-alert { background: white; color: black; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.3); transition: transform 0.2s; }
+        .btn-close-alert:hover { transform: scale(1.05); }
+
+        /* Botão de Instalar */
+        #install-btn-container { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999; }
+        #install-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; gap: 8px; animation: bounceIn 0.5s; }
+        @keyframes bounceIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">📡 CIDADÃO <span>SENSOR</span></div>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="toggleTheme()" title="Modo Noturno">🌙</button>
+            <button class="icon-btn" onclick="shareApp()" title="Compartilhar">🔗</button>
+        </div>
+    </header>
+
+    <!-- Botão de Instalar -->
+    <div id="install-btn-container">
+        <button id="install-btn" onclick="installApp()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Instalar App
+        </button>
+    </div>
+
+    <div id="status-bar" class="status-safe">SISTEMA ONLINE - Monitorando Sebinho (Mesquita/RJ)</div>
+
+    <div id="avatar-container">
+        <div class="avatar-img" id="avatar-img">
+            <div class="avatar-eyes">
+                <div class="eye" id="eye-left"></div>
+                <div class="eye right" id="eye-right"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="log-area">
+        <div class="log-entry log-system">🤖 Sistema de IA Ativo. Aguardando chave ou comandos.</div>
+    </div>
+
+    <div id="controls">
+        <div class="api-section">
+            <input type="password" id="gemini-key" class="api-input" placeholder="Cole sua Chave do Gemini (Grátis) aqui...">
+            <button class="api-save" onclick="saveKey()">SALVAR</button>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" id="user-input" placeholder="Fale ou digite sobre chuva, rio, programas sociais..." autocomplete="off">
+            <button class="btn-mic" id="mic-btn" onclick="toggleListening()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            </button>
+            <button class="btn-send" onclick="enviarMensagem()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="alert-overlay">
+        <div class="alert-icon-img" id="alert-icon-img"></div>
+        <div class="alert-title" id="alert-title">ALERTA MÁXIMO</div>
+        <div class="alert-msg" id="alert-msg">Texto do alerta...</div>
+        <button class="btn-close-alert" onclick="closeAlert()">ENTENDI, VOU TOMAR AÇÃO</button>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURAÇÃO PWA (MANIFEST E SW EMBUTIDOS) ---
+        const manifestData = {
+            name: "Cidadão Sensor - Sebinho AI",
+            short_name: "Cidadão Sensor",
+            start_url: ".",
+            display: "standalone",
+            background_color: "#0f172a",
+            theme_color: "#0f172a",
+            icons: [{ src: "https://cdn-icons-png.flaticon.com/512/2921/2921226.png", sizes: "192x192", type: "image/png" }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(manifestBlob); document.head.appendChild(link);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `const CACHE='cs-v1'; const urls=['.']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(urls)))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+        }
+
+        // --- 2. AVATAR COM IMAGEM REAL E OLHOS ---
+        const avatarImg = document.getElementById('avatar-img');
+        const eyeLeft = document.getElementById('eye-left');
+        const eyeRight = document.getElementById('eye-right');
+        let isTalking = false, isBlinking = false;
+        let avatarColor = '#38bdf8';
+
+        function updateAvatar() {
+            // Pisca os olhos
+            if (isBlinking) {
+                eyeLeft.style.opacity = 0;
+                eyeRight.style.opacity = 0;
+            } else {
+                eyeLeft.style.opacity = 0.8;
+                eyeRight.style.opacity = 0.8;
+            }
+            // Muda cor do avatar conforme alerta
+            avatarImg.style.borderColor = avatarColor;
+            if(avatarColor === '#ef4444') {
+                avatarImg.style.boxShadow = "0 0 60px rgba(239, 68, 68, 0.6)";
+            } else if (avatarColor === '#f59e0b') {
+                avatarImg.style.boxShadow = "0 0 50px rgba(245, 158, 11, 0.5)";
+            } else {
+                avatarImg.style.boxShadow = "0 0 50px rgba(0,0,0,0.6)";
+            }
+            requestAnimationFrame(updateAvatar);
+        }
+        
+        setInterval(() => { 
+            if (Math.random() > 0.95) { 
+                isBlinking = true; 
+                setTimeout(() => isBlinking = false, 150); 
+            } 
+        }, 100);
+        
+        updateAvatar();
+
+        // --- 3. VOZ E MICROFONE ---
+        const micBtn = document.getElementById('mic-btn');
+        const input = document.getElementById('user-input');
+        let recognition;
+        let isListening = false;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                input.value = transcript;
+                toggleListening();
+                enviarMensagem();
+            };
+            recognition.onend = () => { isListening = false; micBtn.classList.remove('listening'); };
+            recognition.onerror = () => { isListening = false; micBtn.classList.remove('listening'); };
+        }
+
+        function toggleListening() {
+            if (!recognition) { alert('Seu navegador não suporta voz. Use Chrome.'); return; }
+            if (isListening) { recognition.stop(); }
+            else {
+                isListening = true;
+                micBtn.classList.add('listening');
+                recognition.start();
+                log("🎤 Ouvindo... Fale agora.");
+            }
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR'; utterance.rate = 1.0;
+            const voices = window.speechSynthesis.getVoices();
+            const ptVoice = voices.find(v => v.lang.includes('pt') && (v.name.includes('Google') || v.name.includes('Premium')));
+            if (ptVoice) utterance.voice = ptVoice;
+            
+            utterance.onstart = () => { isTalking = true; };
+            utterance.onend = () => { isTalking = false; };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- 4. LÓGICA DA IA (GEMINI + DADOS CLIMA) ---
+        const statusBar = document.getElementById('status-bar');
+        const logArea = document.getElementById('log-area');
+        const LAT = -22.777, LON = -43.460; // Mesquita/RJ
+        let weatherData = null;
+
+        window.onload = () => {
+            const savedKey = localStorage.getItem('gemini_key');
+            if (savedKey) document.getElementById('gemini-key').value = savedKey;
+            
+            setInterval(fetchWeatherData, 60000);
+            fetchWeatherData();
+            
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-btn-container').style.display = 'block';
+            });
+        };
+
+        async function fetchWeatherData() {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=precipitation,wind_speed_10m&timezone=America/Sao_Paulo`;
+                const res = await fetch(url); const d = await res.json();
+                const chuva = d.current.precipitation, vento = d.current.wind_speed_10m;
+                weatherData = { chuva, vento };
+                log(`📊 Dados: Chuva ${chuva}mm | Vento ${vento}km/h`);
+                analyzeRisk(chuva, vento);
+            } catch (e) { log("⚠️ Erro ao conectar com dados do tempo."); }
+        }
+
+        // --- SISTEMA DE ALERTA COM IMAGENS REAIS ---
+        function analyzeRisk(chuva, vento) {
+            statusReset();
+            
+            // ALERTA VERMELHO
+            if (chuva > 5 || vento > 60) {
+                triggerAlert('RED', '🚨 RISCO DE TRANSBORDO DO RIO SARAPUÍ', 'Atenção Comunidade do Sebinho! Chuva forte detectada na Rua Amazonas. O Rio Sarapuí pode transbordar. Procure abrigo imediatamente. O Programa Cidades Resilientes ONU-Habitat recomenda cautela.');
+                return;
+            }
+            
+            // ALERTA AMARELO
+            if (chuva > 2 || vento > 40) {
+                statusWarning();
+                speak("Alerta amarelo. Chuva forte se aproximando do Sebinho. Fique atento.");
+                log("⚠️ ALERTA AMARELO DISPARADO");
+            }
+        }
+
+        function statusReset() {
+            statusBar.className = "status-safe"; 
+            avatarColor = '#38bdf8'; 
+            statusBar.innerText = "SISTEMA ONLINE - Monitorando Sebinho";
+        }
+        
+        function statusWarning() {
+            statusBar.className = "status-warning"; 
+            avatarColor = '#f59e0b'; 
+            statusBar.innerText = "⚠️ ALERTA AMARELO - CHUVA FORTCHEGANDO";
+        }
+
+        function triggerAlert(type, title, msg) {
+            const overlay = document.getElementById('alert-overlay');
+            const iconImg = document.getElementById('alert-icon-img');
+      
