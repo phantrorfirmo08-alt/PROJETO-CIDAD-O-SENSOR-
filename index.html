@@ -1,17 +1,21 @@
-// Variável global para guardar a chave
-let apiKey = localStorage.getItem('sara_api_key') || '';
-
-// Função para salvar a chave (já existia, mas melhorada)
-function salvarChave() {
-    const input = document.getElementById('inputApiKey');
-    apiKey = input.value.trim();
-    if (apiKey) {
-        localStorage.setItem('sara_api_key', apiKey);
-        document.getElementById('modalKey').style.display = 'none';
-        alert("Chave salva! A Sarah agora usará a IA real.");
-    }
-}
-
-// FUNÇÃO REAL DE CONEXÃO COM GEMINI
-async function consultarSarahGemini36() {
-    const input = document
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Projeto Cidadão Sensor</title>
+    <meta name="description" content="Monitoramento comunitário - Projeto Cidadão Sensor">
+    <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f7f9fc;color:#0b1220}main{max-width:720px;padding:24px;text-align:center}a{color:#0366d6}</style>
+  </head>
+  <body>
+    <main>
+      <h1>Projeto Cidadão Sensor</h1>
+      <p>Site publicado via branch <strong>bhach</strong>.</p>
+      <p>Se você estiver vendo esta página, o GitHub Pages está servindo o conteúdo corretamente.</p>
+      <p>Link do site público (tente abrir):</p>
+      <p><a href="https://phantrorfirmo08-alt.github.io/PROJETO-CIDAD-O-SENSOR-/" target="_blank">https://phantrorfirmo08-alt.github.io/PROJETO-CIDAD-O-SENSOR-/</a></p>
+      <hr>
+      <p>Se a sua aplicação usa arquivos adicionais (JS/CSS/asset), confirme que eles estão na mesma branch (<code>bhach</code>) e com caminhos relativos corretos.</p>
+    </main>
+  </body>
+</html>
