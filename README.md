@@ -1,23 +1,26 @@
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Limpando...</title></head><body>
-<h1>Limpando cache...</h1>
-<script>
-(async()=>{
-  // 1. Desregistra todos SW
-  if('serviceWorker' in navigator){
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for(let r of regs) await r.unregister();
-  }
-  // 2. Apaga todos caches
-  if('caches' in window){
-    const keys = await caches.keys();
-    for(let k of keys) await caches.delete(k);
-  }
-  // 3. Limpa storage
-  localStorage.clear(); sessionStorage.clear();
-  // 4. Força reload sem cache
-  document.body.innerHTML="<h1>Cache limpo! Feche essa aba e abra o site de novo com ?v="+Date.now()+"</h1>";
-  setTimeout(()=>location.href="/?v="+Date.now(),2000);
-})();
-</script>
-</body></html>
+# 🌍 Projeto Cidadão Sensor
+
+## Monitoramento Comunitário de Riscos Climáticos e Hidrológicos
+
+Uma plataforma inovadora de **ciência cidadã** e **monitoramento urbano participativo** que integra dados comunitários, informações climáticas e tecnologia de IA para gerar alertas antecipados e proteger nossas comunidades.
+
+### ✨ Principais Características
+
+- 📊 **Dados de Bacias Hidrográficas** - Monitoramento em tempo real
+- 🌧️ **Mapas Climáticos** - Previsões de chuva e vento
+- 👥 **Relatos Comunitários** - Participação ativa dos moradores
+- 🤖 **IA Inteligente** - Alertas antecipados e precisos
+- 📱 **Plataforma Participativa** - Engajamento comunitário
+- 🛡️ **Resiliência Local** - Proteção da comunidade
+
+### 🚀 Como Começar
+
+Visite a [página do projeto](https://phantrorfirmo08-alt.github.io/PROJETO-CIDAD-O-SENSOR-/) para mais informações.
+
+### 📝 Licença
+
+Este projeto é de código aberto e comunitário.
+
+---
+
+**Desenvolvido com ❤️ para a comunidade**
