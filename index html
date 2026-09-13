@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cidadão Sensor - Sarah IA | Defesa Civil Digital</title>
+    <meta name="description" content="Plataforma de Defesa Civil Digital e Monitoramento Climático - Mesquita/RJ.">
+    <meta name="theme-color" content="#0284c7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,{
+      'name': 'Cidadão Sensor',
+      'short_name': 'Cidadão Sensor',
+      'start_url': '.',
+      'display': 'standalone',
+      'background_color': '#070b12',
+      'theme_color': '#0284c7',
+      'icons': [{
+        'src': 'https://cdn-icons-png.flaticon.com/512/2991/2991565.png',
+        'sizes': '512x512',
+        'type': 'image/png'
+      }]
+    }">
+
+    <style>
+        /* Base e Otimização Extrema de Legibilidade (Dia e Noite / Alto Contraste) */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: radial-gradient(circle at center, #111e30 0%, #070b12 100%); display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: #f8fafc; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+        
+        /* Controles Superiores Dinâmicos */
+        .top-controls { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 10; flex-wrap: wrap; justify-content: flex-end; }
+        .btn-topo { padding: 10px 16px; background: rgba(255, 255, 255, 0.07); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 30px; cursor: pointer; font-weight: 600; font-size: 0.85rem; backdrop-filter: blur(12px); transition: all 0.3s ease; box-shadow: 0 0 15px rgba(0, 229, 255, 0.15); display: flex; align-items: center; gap: 6px; }
+        .btn-topo:hover { background: rgba(0, 229, 255, 0.2); box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); transform: translateY(-2px); }
+        
+        #btn-instalar { display: none; background: linear-gradient(135deg, #00ff87 0%, #00b8d4 100%); color: #070b12; border: none; font-weight: 700; }
+
+        /* Painéis Flutuantes Avançados */
+        .painel-flutuante { display: none; position: absolute; top: 75px; left: 5%; width: 90%; background: rgba(10, 18, 32, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 20px; backdrop-filter: blur(20px); z-index: 9; box-shadow: 0 20px 40px rgba(0,0,0,0.7); }
+        .grafico-box { background: rgba(255, 255, 255, 0.04); height: 120px; margin-bottom: 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.02em; }
+        
+        /* Configuração de API */
+        .api-config-group { display: flex; gap: 10px; margin-top: 10px; }
+        .api-config-group input { flex: 1; padding: 12px 16px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; color: #fff; outline: none; font-size: 0.95rem; }
+        .api-config-group input:focus { border-color: #00e5ff; }
+        .api-config-group button { padding: 10px 18px; background: #00e5ff; color: #070b12; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        /* Área Central do Mascote */
+        #area-mascote { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        
+        .avatar-container { position: relative; width: 180px; height: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease; animation: flutuar 4s ease-in-out infinite; }
+        .status-bom { border: 4px solid #00ff87; box-shadow: 0 0 35px rgba(0, 255, 135, 0.35); }
+        .status-atencao { border: 4px solid #ffcc00; box-shadow: 0 0 35px rgba(255, 204, 0, 0.35); }
+        .status-perigo { border: 4px solid #ff3366; box-shadow: 0 0 35px rgba(255, 51, 102, 0.35); }
+
+        #mascote { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; background: #0f2b46; }
+
+        .olho { position: absolute; width: 20px; height: 12px; background: #00e5ff; border-radius: 50%; top: 78px; box-shadow: 0 0 15px #00e5ff; animation: piscar 5s infinite; }
+        .olho.esquerdo { left: 58px; }
+        .olho.direito { right: 58px; }
+
+        /* Balão de Fala com Legibilidade Noturna de Alto Contraste */
+        #balao-fala { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); padding: 20px 28px; border-radius: 24px; margin-top: 24px; max-width: 90%; text-align: center; backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-size: 1.1rem; line-height: 1.6; color: #ffffff; font-weight: 400; letter-spacing: 0.01em; min-height: 28px; }
+
+        #painel-teste { position: absolute; bottom: 85px; display: flex; gap: 8px; z-index: 5; }
+        .btn-teste { padding: 6px 14px; border: none; border-radius: 12px; cursor: pointer; font-size: 0.75rem; font-weight: bold; opacity: 0.7; transition: 0.2s; }
+        .btn-teste:hover { opacity: 1; }
+
+        /* Barra Inferior e Microfone Sensível Avançado */
+        #container-chat { background: rgba(7, 11, 18, 0.8); padding: 18px 20px; display: flex; align-items: center; gap: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); }
+        
+        #input-msg { flex: 1; padding: 14px 22px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 30px; outline: none; color: #ffffff; font-size: 1rem; transition: all 0.3s ease; }
+        #input-msg::placeholder { color: #94a3b8; }
+        #input-msg:focus { border-color: rgba(0, 229, 255, 0.7); background: rgba(255, 255, 255, 0.09); box-shadow: 0 0 20px rgba(0, 229, 255, 0.15); }
+
+        /* Botão Microfone de Nível Mundial (PWA Web Speech API + Touch Sensível) */
+        #btn-microfone { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #94a3b8; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); touch-action: manipulation; flex-shrink: 0; }
+        #btn-microfone:hover { background: rgba(0, 229, 255, 0.15); border-color: rgba(0, 229, 255, 0.5); color: #00e5ff; box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+        #btn-microfone.ouvindo { background: rgba(255, 51, 102, 0.2); border-color: #ff3366; color: #ff3366; animation: pulse-gravando 1.2s infinite; }
+
+        /* Botão Enviar */
+        #btn-enviar { background: linear-gradient(135deg, #0284c7 0%, #00e5ff 100%); color: #070b12; border: none; padding: 0 28px; height: 52px; border-radius: 26px; cursor: pointer; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); transition: all 0.3s ease; flex-shrink: 0; }
+        #btn-enviar:hover { box-shadow: 0 6px 25px rgba(0, 229, 255, 0.6); transform: translateY(-1px); }
+
+        @keyframes flutuar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes piscar { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.08); } }
+        @keyframes pulse-gravando { 0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.6); } 70% { box-shadow: 0 0 0 16px rgba(255, 51, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); } }
+    </style>
+</head>
+<body>
+
+    <!-- Controles Superiores: Instalação PWA, API, Compartilhar e Dados -->
+    <div class="top-controls">
+        <button id="btn-instalar" class="btn-topo" onclick="instalarApp()">📥 Instalar App</button>
+        <button class="btn-topo" onclick="compartilharApp()">🔗 Compartilhar</button>
+        <button class="btn-topo" onclick="alternarPainel('painel-api')">⚙️ API</button>
+        <button class="btn-topo" onclick="alternarPainel('painel-graficos')">📊 Dados</button>
+    </div>
+
+    <!-- Painel de Configuração da Chave da API (Hugging Face / Gemini) -->
+    <div id="painel-api" class="painel-flutuante">
+        <h3 style="color: #00e5ff; margin-bottom: 8px; font-size: 1.05rem;">Chave da API (Sarah IA)</h3>
+        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">Insira seu token de acesso (ex: Hugging Face <code>hf_...</code> ou chave Gemini) para ativar o processamento autônomo:</p>
+        <div class="api-config-group">
+            <input type="password" id="input-api-key" placeholder="Cole sua chave aqui...">
+            <button onclick="salvarApiKey()">Salvar</button>
+        </div>
+    </div>
+
+    <!-- Painel de Dados Hidrológicos -->
+    <div id="painel-graficos" class="painel-flutuante">
+        <div class="grafico-box">☁️ Telemetria Atmosférica & Radares de Chuva (Mesquita/RJ)</div>
+        <div class="grafico-box">🌊 Monitoramento Bacia Hidrográfica (Rio Sarapuí, Dona Eugênia e Prata)</div>
+    </div>
+
+    <!-- Centro da Interface: Mascote e Diálogo -->
+    <div id="area-mascote">
+        <div class="avatar-container status-bom" id="anel-status">
+            <img id="mascote" src="mascote.png" alt="Sarah - Cidadão Sensor">
+            <div class="olho esquerdo"></div>
+            <div class="olho direito"></div>
+        </div>
+        
+        <div id="balao-fala"></div>
+
+        <div id="painel-teste">
+            <button class="btn-teste" style="background: #00ff87; color: #000;" onclick="mudarStatus('bom')">Bom</button>
+            <button class="btn-teste" style="background: #ffcc00; color: #000;" onclick="mudarStatus('atencao')">Atenção</button>
+            <button class="btn-teste" style="background: #ff3366; color: #fff;" onclick="mudarStatus('perigo')">Perigo</button>
+        </div>
+    </div>
+
+    <!-- Barra Inferior: Chat com Microfone Sensível Avançado -->
+    <div id="container-chat">
+        <button id="btn-microfone" title="Ativar Reconhecimento de Voz" onclick="ativarReconhecimentoVoz()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </button>
+        <input type="text" id="input-msg" placeholder="Digite sua consulta ou acione o microfone...">
+        <button id="btn-enviar" onclick="enviarMensagem()">Enviar</button>
+    </div>
+
+    <script>
+        let idIntervaloDigitacao;
+        let deferredPrompt = window.deferredPrompt || null;
+
+        // Efeito Typewriter Avançado com Alta Legibilidade
+        function falarTexto(texto) {
+            const balao = document.getElementById('balao-fala');
+            balao.innerHTML = ""; 
+            clearInterval(idIntervaloDigitacao);
+
+            let i = 0;
+            idIntervaloDigitacao = setInterval(() => {
+                if (i < texto.length) {
+                    balao.innerHTML += texto.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(idIntervaloDigitacao);
+                }
+            }, 25);
+        }
+
+        window.onload = function() {
+            const chaveSalva = localStorage.getItem('sarah_api_key');
+            if (chaveSalva) {
+                document.getElementById('input-api-key').value = chaveSalva;
+            }
+            falarTexto("Cidadão Sensor online. Sarah pronta para monitorar a bacia e a Defesa Civil em Mesquita. Como posso ajudar?");
+        };
+
+        // Gerenciamento de Instalação PWA Real
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('btn-instalar').style.display = 'flex';
+        });
+
+        function instalarApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('btn-instalar').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                falarTexto("O aplicativo já está instalado ou o seu navegador gerencia a instalação automaticamente na tela inicial.");
+            }
+        }
+
+        // Botão de Compartilhamento Nativo com Fallback
+        async function compartilharApp() {
+            const shareData = {
+                title: 'Cidadão Sensor - Sarah IA',
+                text: 'Acesse a plataforma de Defesa Civil Digital e Monitoramento Climático de Mesquita/RJ.',
+                url: window.location.href
+            };
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.log('Compartilhamento cancelado');
+                }
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                falarTexto("Link do aplicativo copiado para a área de transferência!");
+            }
+        }
+
+        function salvarApiKey() {
+            const chave = document.getElementById('input-api-key').value.trim();
+            if (chave) {
+                localStorage.setItem('sarah_api_key', chave);
+                falarTexto("Chave de API salva com sucesso! Módulo de IA ativado.");
+                alternarPainel('painel-api');
+            } else {
+                falarTexto("Insira uma chave válida para prosseguir.");
+            }
+        }
+
+        function alternarPainel(idPainel) {
+            const painel = document.getElementById(idPainel);
+            document.querySelectorAll('.painel-flutuante').forEach(p => {
+                if(p.id !== idPainel) p.style.display = 'none';
+            });
+            painel.style.display = painel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function mudarStatus(clima) {
+            const anel = document.getElementById('anel-status');
+            anel.className = "avatar-container"; 
+            
+            if(clima === 'bom') {
+                anel.classList.add('status-bom');
+                falarTexto("Situação estável na bacia de Mesquita. Sem riscos iminentes.");
+            } else if(clima === 'atencao') {
+                anel.classList.add('status-atencao');
+                falarTexto("Atenção: Núcleos de chuva detectados na cabeceira. Monitoramento preventivo ativo.");
+            } else if(clima === 'perigo') {
+                anel.classList.add('status-perigo');
+                falarTexto("ALERTA MÁXIMO DE DEFESA CIVIL: Risco de elevação rápida nos rios. Atenção às áreas vulneráveis!");
+            }
+        }
+
+        // Sistema de Microfone Avançado com Web Speech API Nativa
+        function ativarReconhecimentoVoz() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const btnMic = document.getElementById('btn-microfone');
+            const inputMsg = document.getElementById('input-msg');
+
+            if (!SpeechRecognition) {
+                falarTexto("O seu navegador não suporta reconhecimento de voz nativo. Use o teclado ou Chrome/Safari móvel.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                btnMic.classList.add('ouvindo');
+                falarTexto("Ouvindo com alta sensibilidade... Fale agora.");
+            };
+
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                inputMsg.value = speechResult;
+                falarTexto("Comando capturado: \"" + speechResult + "\". Processando...");
+                btnMic.classList.remove('ouvindo');
+                enviarMensagem();
+            };
+
+            recognition.onerror = function(event) {
+                btnMic.classList.remove('ouvindo');
+                falarTexto("Não foi possível capturar o áudio com clareza. Tente novamente.");
+            };
+
+            recognition.onend = function() {
+                btnMic.classList.remove('ouvindo');
+            };
+
+            recognition.start();
+        }
+
+        function enviarMensagem() {
+            const input = document.getElementById('input-msg');
+            const texto = input.value.trim();
+            const apiKey = localStorage.getItem('sarah_api_key');
+
+            if (!texto) return;
+
+            if (!apiKey) {
+                falarTexto("Configure sua chave de API (botão ⚙️ API) para permitir respostas inteligentes em tempo real.");
+                input.value = '';
+                return;
+            }
+
+            falarTexto("Sarah processando: \"" + texto + "\"... Analisando dados da Defesa Civil.");
+            input.value = '';
+        }
+
+        document.getElementById('input-msg').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enviarMensagem();
+            }
+        });
+    </script>
+</body>
+</html>
