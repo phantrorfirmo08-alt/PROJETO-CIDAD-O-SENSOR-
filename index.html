@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cidadão Sensor — Sarapuí Sentinel AI</title>
+    
+    <!-- Biblioteca Gráfica Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --app-font-size: 14px;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+        }
+        
+        body { 
+            background: radial-gradient(circle at center, #111e30 0%, #070b12 100%); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: #ffffff; 
+            font-size: var(--app-font-size);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Modo Claro Opcional */
+        html.light body {
+            background: radial-gradient(circle at center, #f1f5f9 0%, #cbd5e1 100%);
+            color: #0f172a;
+        }
+        html.light header {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        html.light .titulo-painel h1 {
+            color: #1e293b;
+        }
+        html.light #balao-fala {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #1e293b;
+        }
+        html.light #container-chat {
+            background: rgba(241, 245, 249, 0.9);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        html.light #input-msg {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #0f172a;
+        }
+        html.light .footer-system {
+            background: rgba(226, 232, 240, 0.9) !important;
+            color: #334155 !important;
+        }
+
+        /* Cabeçalho Técnico Expandido */
+        header {
+            padding: 12px 20px;
+            background: rgba(7, 11, 18, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .titulo-painel h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: 0.5px;
+        }
+
+        .titulo-painel span {
+            font-size: 0.75rem;
+            color: #00e5ff;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Botões utilitários do topo */
+        .btn-util {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #00e5ff;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-util:hover {
+            background: rgba(0, 229, 255, 0.2);
+            border-color: #00e5ff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Painel Expandido de Telemetria */
+        #painel-graficos { 
+            display: none; 
+            position: absolute; 
+            top: 130px; 
+            left: 5%; 
+            width: 90%; 
+            max-height: 60vh;
+            background: rgba(10, 18, 32, 0.95); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 24px; 
+            padding: 20px; 
+            backdrop-filter: blur(25px); 
+            z-index: 99; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); 
+            overflow-y: auto;
+        }
+        
+        .grafico-box { 
+            background: rgba(255, 255, 255, 0.02); 
+            height: 160px; 
+            margin-bottom: 15px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            padding: 10px;
+            position: relative;
+        }
+
+        /* Área Central do Mascote Falante */
+        #area-mascote { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            position: relative; 
+        }
+        
+        .avatar-container { 
+            position: relative; 
+            width: 170px; 
+            height: 170px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+            animation: flutuar 4s ease-in-out infinite; 
+        }
+        
+        .status-bom { border: 4px solid #00ff87; box-shadow: 0 0 35px rgba(0, 255, 135, 0.25); }
+        .status-atencao { border: 4px solid #ffcc00; box-shadow: 0 0 35px rgba(255, 204, 0, 0.25); }
+        .status-perigo { border: 4px solid #ff3366; box-shadow: 0 0 35px rgba(255, 51, 102, 0.25); }
+
+        #mascote { 
+            width: 154px; 
+            height: 154px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            background: #0f2b46; 
+        }
+
+        .olho { 
+            position: absolute; 
+            width: 18px; 
+            height: 12px; 
+            background: #00e5ff; 
+            border-radius: 50%; 
+            top: 72px; 
+            box-shadow: 0 0 12px #00e5ff; 
+            animation: piscar 5s infinite; 
+            z-index: 5;
+        }
+        .olho.esquerdo { left: 56px; }
+        .olho.direito { right: 56px; }
+
+        #balao-fala { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 18px 22px; 
+            border-radius: 22px; 
+            margin-top: 25px; 
+            max-width: 85%; 
+            text-align: center; 
+            backdrop-filter: blur(15px); 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25); 
+            line-height: 1.5; 
+            color: #e2e8f0; 
+            min-height: 50px; 
+        }
+
+        #painel-teste { 
+            position: absolute; 
+            bottom: 15px; 
+            display: flex; 
+            gap: 10px; 
+            z-index: 5; 
+        }
+        
+        .btn-teste { 
+            padding: 6px 12px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            opacity: 0.6; 
+            transition: all 0.2s ease; 
+        }
+        .btn-teste:hover { opacity: 1; transform: scale(1.05); }
+
+        /* Seção Inferior: Chat e Rodapé Institucional */
+        .bottom-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #container-chat { 
+            background: rgba(6, 10, 17, 0.85); 
+            padding: 15px 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(15px); 
+        }
+        
+        #input-msg { 
+            flex: 1; 
+            padding: 12px 20px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 25px; 
+            outline: none; 
+            color: inherit; 
+            font-size: 1rem; 
+            transition: all 0.3s ease; 
+        }
+        
+        #input-msg:focus { 
+            border-color: rgba(0, 229, 255, 0.4); 
+            background: rgba(255, 255, 255, 0.06); 
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.15); 
+        }
+
+        #btn-microfone { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 50%; 
+            width: 48px; 
+            height: 48px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            color: #a0aec0; 
+        }
+        
+        #btn-microfone:hover { 
+            background: rgba(255, 51, 102, 0.1); 
+            border-color: rgba(255, 51, 102, 0.4); 
+            color: #ff3366; 
+        }
+
+        #btn-enviar { 
+            background: linear-gradient(135deg, #0072ff 0%, #00f2fe 100%); 
+            color: white; 
+            border: none; 
+            padding: 0 25px; 
+            height: 48px; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.3); 
+            transition: all 0.3s ease; 
+        }
+        #btn-enviar:hover { transform: translateY(-1px); }
+
+        /* Rodapé Solicitado */
+        .footer-system {
+            background: rgba(4, 7, 12, 0.95);
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #8a99ad;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .footer-system .linha-destaque {
+            color: #00e5ff;
+            font-weight: 600;
+        }
+
+        @keyframes flutuar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes piscar {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="titulo-painel">
+            <h1>Cidadão Sensor</h1>
+            <span>Sarapuí Sentinel AI</span>
+        </div>
+        
+        <div class="header-controls">
+            <!-- Botão de Tema (Dia/Noite / Conforto Visual) -->
+            <button id="btnTema" class="btn-util" title="Alternar Conforto Visual (Dia/Noite)">
+                <i id="iconeTema" class="fas fa-moon"></i>
+            </button>
+
+            <!-- Botões de Aumentar e Diminuir Letra -->
+            <button id="btnAumentar" class="btn-util" title="Aumentar Letra"><i class="fas fa-plus"></i>A</button>
+            <button id="btnDiminuir" class="btn-util" title="Diminuir Letra"><i class="fas fa-minus"></i>A</button>
+
+            <!-- Botão de Compartilhar -->
+            <button id="btnCompartilhar" class="btn-util" title="Compartilhar Aplicativo">
+                <i class="fas fa-share-nodes"></i>
+            </button>
+
+            <!-- Botão de Instalar PWA -->
+            <button id="btnInstalarPWA" class="btn-util hidden" title="Instalar Aplicativo" style="background: rgba(0, 255, 135, 0.15); border-color: #00ff87; color: #00ff87;">
+                <i class="fas fa-download"></i> Instalar
+            </button>
+
+            <!-- Botão Painel de Dados -->
+            <button id="btn-graficos" class="btn-util" onclick="alternarGraficos()" style="border-color: rgba(0,229,255,0.4);">📊 Dados</button>
+        </div>
+    </header>
+
+    <div id="painel-graficos">
+        <div class="grafico-box"><canvas id="graficoCeu"></canvas></div>
+        <div class="grafico-box"><canvas id="graficoRio"></canvas></div>
+    </div>
+
+    <main id="area-mascote">
+        <div id="anel-status" class="avatar-container status-bom">
+            <div class="olho esquerdo"></div>
+            <div class="olho direito"></div>
+            <img id="mascote" src="image.png" alt="Mascote Cidadão Sensor">
+        </div>
+
+        <div id="balao-fala">Carregando telemetria...</div>
+
+        <div id="painel-teste">
+            <button class="btn-teste" style="background:#00ff87; color:#000;" onclick="mudarStatus('bom')">Bom</button>
+            <button class="btn-teste" style="background:#ffcc00; color:#000;" onclick="mudarStatus('atencao')">Atenção</button>
+            <button class="btn-teste" style="background:#ff3366; color:#fff;" onclick="mudarStatus('perigo')">Perigo</button>
+        </div>
+    </main>
+
+    <div class="bottom-wrapper">
+        <footer id="container-chat">
+            <input type="text" id="input-msg" placeholder="Digite sua mensagem ou relato..." onkeydown="if(event.key === 'Enter') enviarMensagem()">
+            <button id="btn-microfone" onclick="gravarVoz()" title="Falar por voz"><i class="fas fa-microphone"></i></button>
+            <button id="btn-enviar" onclick="enviarMensagem()">Enviar</button>
+        </footer>
+
+        <!-- Rodapé configurado conforme solicitado -->
+        <footer class="footer-system">
+            <div>Todos os direitos reservados, 2024 - 2028.</div>
+            <div class="linha-destaque">Chave da Esperança, Mesquita, Rio de Janeiro, RJ, Sebinho</div>
+            <div>Defesa Civil Digital Comunitária</div>
+        </footer>
+    </div>
+
+    <script>
+        let idIntervaloDigitacao;
+        let instGraficoCeu, instGraficoRio;
+        let eventoInstalacao = null;
+
+        function falarTexto(texto) {
+            const balao = document.getElementById('balao-fala');
+            balao.innerHTML = "";
+            clearInterval(idIntervaloDigitacao);
+            let i = 0;
+            idIntervaloDigitacao = setInterval(() => {
+                if (i < texto.length) {
+                    balao.innerHTML += texto.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(idIntervaloDigitacao);
+                }
+            }, 30);
+        }
+
+        window.onload = function() {
+            falarTexto("Sistemas online. Monitorando bacia hidrográfica do Rio Sarapuí e condições atmosféricas em tempo real. Como posso ajudar?");
+            inicializarGraficos();
+        };
+
+        // Tema (Dia / Noite / Conforto Visual)
+        const btnTema = document.getElementById('btnTema');
+        const iconeTema = document.getElementById('iconeTema');
+        
+        function atualizarIconeTema() {
+            const escuro = !document.documentElement.classList.contains("light");
+            iconeTema.className = escuro ? "fas fa-moon" : "fas fa-sun";
+        }
+
+        btnTema.addEventListener("click", () => {
+            const claro = document.documentElement.classList.toggle("light");
+            localStorage.setItem("temaCidadao", claro ? "light" : "dark");
+            atualizarIconeTema();
+        });
+
+        if (localStorage.getItem("temaCidadao") === "light") {
+            document.documentElement.classList.add("light");
+        }
+        atualizarIconeTema();
+
+        // Controle de Tamanho de Fonte (Aumentar / Diminuir)
+        let tamanhoFonte = Number(localStorage.getItem("tamanhoFonteCidadao")) || 14;
+
+        function aplicarFonte() {
+            tamanhoFonte = Math.max(11, Math.min(18, tamanhoFonte));
+            document.documentElement.style.setProperty("--app-font-size", `${tamanhoFonte}px`);
+            localStorage.setItem("tamanhoFonteCidadao", String(tamanhoFonte));
+        }
+
+        document.getElementById('btnAumentar').addEventListener("click", () => {
+            tamanhoFonte++;
+            aplicarFonte();
+        });
+
+        document.getElementById('btnDiminuir').addEventListener("click", () => {
+            tamanhoFonte--;
+            aplicarFonte();
+        });
+        aplicarFonte();
+
+        // Compartilhamento
+        document.getElementById('btnCompartilhar').addEventListener("click", async () => {
+            const dados = {
+                title: "Cidadão Sensor — Sarapuí Sentinel AI",
+                text: "Acesse o aplicativo de monitoramento e Defesa Civil Digital Comunitária.",
+                url: window.location.href
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(dados);
+                } else {
+                    await navigator.clipboard.writeText(window.location.href);
+                    falarTexto("Link copiado para a área de transferência!");
+                }
+            } catch (erro) {
+                console.log("Compartilhamento cancelado.");
+            }
+        });
+
+        // Instalação PWA
+        window.addEventListener("beforeinstallprompt", evento => {
+            evento.preventDefault();
+            eventoInstalacao = evento;
+            const btnPWA = document.getElementById('btnInstalarPWA');
+            if (btnPWA) btnPWA.classList.remove("hidden");
+        });
+
+        const btnPWA = document.getElementById('btnInstalarPWA');
+        if (btnPWA) {
+            btnPWA.addEventListener("click", async () => {
+                if (!eventoInstalacao) {
+                    falarTexto("A instalação já foi concluída ou não é suportada por este navegador.");
+                    return;
+                }
+                eventoInstalacao.prompt();
+                const escolha = await eventoInstalacao.userChoice;
+                if (escolha.outcome === "accepted") {
+                    btnPWA.classList.add("hidden");
+                }
+                eventoInstalacao = null;
+            });
+        }
+
+        function inicializarGraficos() {
+            const opcoesEstilo = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#8a99ad', font: { size: 10, weight: 'bold' } } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#8a99ad' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a99ad' } }
+                }
+            };
+
+            const ctxCeu = document.getElementById('graficoCeu').getContext('2d');
+            instGraficoCeu = new Chart(ctxCeu, {
+                type: 'line',
+                data: {
+                    labels: ['04:00', '08:00', '12:00', '16:00', '20:00', '00:00'],
+                    datasets: [{
+                        label: 'Precipitação (mm)',
+                        data: [0, 5, 25, 40, 10, 0],
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.08)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: opcoesEstilo
+            });
+
+            const ctxRio = document.getElementById('graficoRio').getContext('2d');
+            instGraficoRio = new Chart(ctxRio, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                    datasets: [{
+                        label: 'Nível Rio Sarapuí (m)',
+                        data: [1.2, 1.4, 2.1, 3.5, 1.9, 1.5],
+                        borderColor: '#00ff87',
+                        backgroundColor: 'rgba(0, 255, 135, 0.08)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: opcoesEstilo
+            });
+        }
+
+        function mudarStatus(clima) {
+            const anel = document.getElementById('anel-status');
+            anel.className = "avatar-container";
+            if(clima === 'bom') {
+                anel.classList.add('status-bom');
+                falarTexto("Tempo estável na bacia. Sem riscos iminentes de elevação do Rio Sarapuí.");
+            } else if(clima === 'atencao') {
+                anel.classList.add('status-atencao');
+                falarTexto("Atenção: Núcleos de chuva se aproximando da cabeceira do Rio Sarapuí. Monitoramen
